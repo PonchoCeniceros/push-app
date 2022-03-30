@@ -1,6 +1,6 @@
 {
-	"appId": "io.ionic.starter",
-	"appName": "pushApp",
-	"webDir": "www",
-	"bundledWebRuntime": false
+  "appId": "com.gacg.push.app",
+  "appName": "pushApp",
+  "webDir": "www",
+  "bundledWebRuntime": false
 }
