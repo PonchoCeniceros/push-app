@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { PushNotifications } from '@capacitor/push-notifications';
+
 
 @Component({
   selector: 'app-details',
@@ -6,10 +9,18 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./details.page.scss'],
 })
 export class DetailsPage implements OnInit {
+  id = null;
+  constructor(private route: ActivatedRoute) { }
 
-  constructor() { }
+  public ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      this.id = params.get('id');
+    });
+  }
 
-  ngOnInit() {
+  public resetCount() {
+    PushNotifications.removeAllDeliveredNotifications();
+
   }
 
 }
