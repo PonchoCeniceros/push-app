@@ -39,7 +39,7 @@ export class FcmService {
      */
     PushNotifications.addListener('registration',
       (token: Token) => {
-        console.log("%cSUCCESS! TOKEN: " + token.value + " UUID: " + this.device.uuid, "color: green");
+        console.log("SUCCESS! TOKEN: " + token.value + " UUID: " + this.device.uuid);
       }
     );
 
