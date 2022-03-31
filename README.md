@@ -22,15 +22,17 @@ npx cap add ios && npx cap add android
 #### Running on ionic CLI for live reload (testing)
 ```Bash
 ionic capacitor run ios --l --external
+```
+```Bash
 ionic capacitor run android --l --external
 ```
-
 #### Running on Xcode / Android Studio 
 ```Bash
 npx cap open ios
+```
+```Bash
 npx cap open android
 ```
-
 ## Generate certificates for ios
 1. **create an account in Apple Developer Program**.
 2. generate a RSA private key and CSR certificate:
@@ -48,8 +50,8 @@ openssl req -new -key ${keyname}.key -out CertificateSigningRequest.certSigningR
 * go to ```Member Center → Certificates, IDs & Profiles → Identifiers``` and register a new identifier as *bundle_id*.
 * go to ```Member Center → Certificates, IDs & Profiles → Devices``` and register a device. You must need the UDID device.
 * go to ```Member Center → Certificates, IDs & Profiles → Certificates``` and generate a new certificate. Select *iOS App Development* and load the CSR file.
-* go to ```Member Center → Certificates, IDs & Profiles → Profiles``` and generate a new provisional profile. download the ```.mobileprovision``` file.
 * go to ```Member Center → Certificates, IDs & Profiles → Keys``` and generate a new, check *Apple Push Notifications service (APNs)* box.
+* go to ```Member Center → Certificates, IDs & Profiles → Profiles``` and generate a new provisional profile. download the ```.mobileprovision``` file.
 
 4. signing certificate and generate secure private key copy ```.p12```.
 ```Bash
@@ -92,6 +94,11 @@ openssl pkcs12 -export -inkey ${keyname}.key -in ios_development.pem -out ${keyn
 * add Firebase dependencies on *Cocoapods* project by ```Podfile```. Check [available libraries.](https://firebase.google.com/docs/cpp/setup?platform=ios&authuser=0&hl=es#add-config-file)
 
 ```Ruby
+pod 'Firebase/Messaging'
+```
+```Podfile``` must looks like this:
+
+```Ruby
 target 'App' do
   capacitor_pods
     # Add your Pods here
@@ -102,17 +109,46 @@ target 'App' do
     pod 'Firebase/Messaging'
 end
 ```
-* update project by ```npx cap update ios``` (or update *Cocoapods* project by ```pod install --repo-update``` on ```ios/App``` path).
-* add Firebase init on ```AppDelegate.swift``` file:
 
+* update project by
+```
+npx cap update ios
+```
+(or update *Cocoapods* project by ```pod install --repo-update``` on ```ios/App``` path).
+* add Firebase code on ```AppDelegate.swift``` file:
+
+
+```Swift
+import Firebase
+```
+
+```Swift
+FirebaseApp.configure()
+```
+
+```Swift
+func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken
+    Messaging.messaging().token(completion: { (token, error) in
+        if let error = error {
+            NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+        } else if let token = token {
+            NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: token)
+        }
+    })
+}
+
+func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+}
+```
+
+```AppDelegate.swift``` file must looks like this:
 
 ```Swift
 import UIKit
 import Capacitor
-/**
- *  (1)
- */
-import Firebase
+import Firebase // (1)
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -120,13 +156,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        /**
-         *  (2)
-         */
-        FirebaseApp.configure()        
+        FirebaseApp.configure() // (2)
         return true
     }
-
     /**
      *   (3A)
      */
@@ -140,7 +172,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         })
     }
-
     /**
      *   (3B)
      */

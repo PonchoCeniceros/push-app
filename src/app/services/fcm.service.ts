@@ -7,14 +7,17 @@ import {
   PushNotifications,
   Token,
 } from '@capacitor/push-notifications';
-
+import { Device } from '@awesome-cordova-plugins/device/ngx';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FcmService {
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private device: Device,
+    ) { }
 
   public init() {
     if (Capacitor.getPlatform() !== "web") {
@@ -27,7 +30,7 @@ export class FcmService {
       if (permission.receive === 'granted') {
         PushNotifications.register();
       } else {
-        console.log("Push notifications doesn't work :(");
+        console.log("Push notifications doesn't work");
       }
     });
 
@@ -36,7 +39,7 @@ export class FcmService {
      */
     PushNotifications.addListener('registration',
       (token: Token) => {
-        alert('Push registration success, token: ' + token.value);
+        console.log("%cSUCCESS! TOKEN: " + token.value + " UUID: " + this.device.uuid, "color: green");
       }
     );
 
@@ -45,7 +48,7 @@ export class FcmService {
      */
     PushNotifications.addListener('registrationError',
       (error: any) => {
-        alert('Error on registration: ' + JSON.stringify(error));
+        console.log('Error on registration: ' + JSON.stringify(error));
       }
     );
 
@@ -54,7 +57,7 @@ export class FcmService {
      */
     PushNotifications.addListener('pushNotificationReceived',
       (notification: PushNotificationSchema) => {
-        alert('Push received: ' + JSON.stringify(notification));
+        console.log('Push received: ' + JSON.stringify(notification));
       }
     );
 
@@ -64,7 +67,7 @@ export class FcmService {
     PushNotifications.addListener('pushNotificationActionPerformed',
       (notification: ActionPerformed) => {
         const data = notification.notification.data;
-        alert('Push action performed: ' + JSON.stringify(notification));
+        console.log('Push action performed: ' + JSON.stringify(notification));
         if (data.detailsId) {
           this.router.navigateByUrl(`/home/${data.detailsId}`);
         }

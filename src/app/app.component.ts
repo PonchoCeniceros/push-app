@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Platform } from '@ionic/angular';
 import { FcmService } from './services/fcm.service';
 
 @Component({
@@ -8,12 +9,15 @@ import { FcmService } from './services/fcm.service';
 })
 export class AppComponent {
   constructor(
-    private fcmService: FcmService
+    private fcmService: FcmService,
+    private platform: Platform,
   ) {
     this.initApp();
   }
 
   private initApp() {
-    this.fcmService.init();
+    this.platform.ready().then(() => {
+      this.fcmService.init();
+    });
   }
 }
