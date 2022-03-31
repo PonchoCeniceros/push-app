@@ -1,0 +1,6 @@
+{
+	"appId": "com.gacg.push.app",
+	"appName": "pushApp",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}
